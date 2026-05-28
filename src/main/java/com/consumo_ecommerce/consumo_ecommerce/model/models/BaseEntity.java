@@ -1,4 +1,4 @@
-package model.models;
+package com.consumo_ecommerce.consumo_ecommerce.model.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;

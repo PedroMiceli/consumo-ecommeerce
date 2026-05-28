@@ -1,12 +1,14 @@
-package model.models.venda;
+package com.consumo_ecommerce.consumo_ecommerce.model.models.venda;
 
+import com.consumo_ecommerce.consumo_ecommerce.model.models.anuncio.Anuncio;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import model.models.BaseEntity;
+import com.consumo_ecommerce.consumo_ecommerce.model.models.BaseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Setter
@@ -76,10 +78,40 @@ public class Venda extends BaseEntity {
     @Column(name = "pedido_compra")
     private String pedidoCompra;
 
-    @Column(name = "VendaPorPublicidade")
+    @Column(name = "venda_por_publicidade")
     private boolean VendaPorPublicidade;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "anuncio_id", nullable = false)
     private Anuncio anuncio;
+
+    public Venda() {
+    }
+
+    public Venda(UUID id, String numeroVenda, LocalDateTime dataVenda, String deposito, String estado, String descricaoStatus, Boolean pacoteDiversosProdutos, Boolean pertenceKit, Integer unidades, BigDecimal receitaProdutos, BigDecimal receitaAcrescimoPreco, BigDecimal taxaParcelamentoAcrescimo, BigDecimal tarifaVendaImpostos, BigDecimal receitaEnvio, BigDecimal tarifasEnvio, BigDecimal custoEnvioMedidasPeso, BigDecimal custoDiferencasMedidasPeso, BigDecimal descontosBonus, BigDecimal cancelamentosReembolsos, BigDecimal total, String mesFaturamentoTarifas, String pedidoCompra, boolean vendaPorPublicidade, Anuncio anuncio) {
+        this.setId(id);
+        this.numeroVenda = numeroVenda;
+        this.dataVenda = dataVenda;
+        this.deposito = deposito;
+        this.estado = estado;
+        this.descricaoStatus = descricaoStatus;
+        this.pacoteDiversosProdutos = pacoteDiversosProdutos;
+        this.pertenceKit = pertenceKit;
+        this.unidades = unidades;
+        this.receitaProdutos = receitaProdutos;
+        this.receitaAcrescimoPreco = receitaAcrescimoPreco;
+        this.taxaParcelamentoAcrescimo = taxaParcelamentoAcrescimo;
+        this.tarifaVendaImpostos = tarifaVendaImpostos;
+        this.receitaEnvio = receitaEnvio;
+        this.tarifasEnvio = tarifasEnvio;
+        this.custoEnvioMedidasPeso = custoEnvioMedidasPeso;
+        this.custoDiferencasMedidasPeso = custoDiferencasMedidasPeso;
+        this.descontosBonus = descontosBonus;
+        this.cancelamentosReembolsos = cancelamentosReembolsos;
+        this.total = total;
+        this.mesFaturamentoTarifas = mesFaturamentoTarifas;
+        this.pedidoCompra = pedidoCompra;
+        VendaPorPublicidade = vendaPorPublicidade;
+        this.anuncio = anuncio;
+    }
 }

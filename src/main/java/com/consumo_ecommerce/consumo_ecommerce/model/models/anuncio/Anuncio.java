@@ -1,16 +1,17 @@
-package model.models.venda;
+package com.consumo_ecommerce.consumo_ecommerce.model.models.anuncio;
 
-import jakarta.persistence.CascadeType;
+import com.consumo_ecommerce.consumo_ecommerce.model.models.venda.Venda;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
-import model.models.BaseEntity;
+import com.consumo_ecommerce.consumo_ecommerce.model.models.BaseEntity;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Setter
@@ -20,7 +21,7 @@ public class Anuncio extends BaseEntity {
     @Column(name = "sku")
     private String sku;
 
-    @Column(name = "numero_anuncio")
+    @Column(name = "numero_anuncio", unique = true, nullable = false)
     private String numeroAnuncio;
 
     @Column(name = "canal_venda")
@@ -40,4 +41,18 @@ public class Anuncio extends BaseEntity {
 
     @OneToMany(mappedBy = "anuncio")
     private List<Venda> vendas = new ArrayList<>();
+
+    public Anuncio() {
+    }
+
+    public Anuncio(UUID id, String sku, String numeroAnuncio, String canalVenda, String tituloAnuncio, String variacao, BigDecimal precoUnitarioVenda, String tipoAnuncio) {
+        this.setId(id);
+        this.sku = sku;
+        this.numeroAnuncio = numeroAnuncio;
+        this.canalVenda = canalVenda;
+        this.tituloAnuncio = tituloAnuncio;
+        this.variacao = variacao;
+        this.precoUnitarioVenda = precoUnitarioVenda;
+        this.tipoAnuncio = tipoAnuncio;
+    }
 }
