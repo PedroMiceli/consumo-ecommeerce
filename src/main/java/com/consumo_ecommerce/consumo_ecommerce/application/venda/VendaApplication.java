@@ -2,6 +2,7 @@ package com.consumo_ecommerce.consumo_ecommerce.application.venda;
 
 import com.consumo_ecommerce.consumo_ecommerce.application.dtos.venda.VendaResponse;
 import com.consumo_ecommerce.consumo_ecommerce.application.dtos.venda.VendaRequest;
+import com.consumo_ecommerce.consumo_ecommerce.application.mapper.XlsxMapper;
 import com.consumo_ecommerce.consumo_ecommerce.exceptions.CampoObrigatorioException;
 import com.consumo_ecommerce.consumo_ecommerce.exceptions.NaoEncontradoException;
 import com.consumo_ecommerce.consumo_ecommerce.model.models.anuncio.Anuncio;
@@ -11,6 +12,7 @@ import com.consumo_ecommerce.consumo_ecommerce.service.venda.IVendaService;
 import com.consumo_ecommerce.consumo_ecommerce.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,6 +28,19 @@ public class VendaApplication implements IVendaApplication{
 
     @Autowired
     private IAnuncioService anuncioService;
+
+    @Autowired
+    private XlsxMapper xlsxMapper;
+
+    //Le o arquivo xlsx e retorna uma lista de VendaRequest, chamando a funçao de salvar
+    @Override
+    public void importarVendasXlsx(MultipartFile arquivo) {
+        if (arquivo == null || arquivo.isEmpty()) {
+            throw new CampoObrigatorioException("Arquivo XLSX");
+        }
+        List<VendaRequest> vendasRequest = XlsxMapper.converterParaVendaRequest(arquivo);
+        salvarVendas(vendasRequest);
+    }
 
     @Override
     public void salvarVendas(List<VendaRequest> vendasRequest) {
@@ -65,6 +80,7 @@ public class VendaApplication implements IVendaApplication{
     public List<VendaResponse> buscarVendas(LocalDateTime dataInicio, LocalDateTime dataFim) {
         return vendaService.buscarVendas(dataInicio, dataFim).stream().map(VendaResponse::new).toList();
     }
+
 }
 
 
