@@ -38,7 +38,7 @@ public class VendaApplication implements IVendaApplication{
         if (arquivo == null || arquivo.isEmpty()) {
             throw new CampoObrigatorioException("Arquivo XLSX");
         }
-        List<VendaRequest> vendasRequest = XlsxMapper.converterParaVendaRequest(arquivo);
+        List<VendaRequest> vendasRequest = xlsxMapper.converterParaVendaRequest(arquivo);
         salvarVendas(vendasRequest);
     }
 

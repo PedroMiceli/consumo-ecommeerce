@@ -27,7 +27,7 @@ import java.util.Locale;
 @Component
 public class XlsxMapper {
 
-    public static List<VendaRequest> converterParaVendaRequest(MultipartFile arquivo) {
+    public List<VendaRequest> converterParaVendaRequest(MultipartFile arquivo) {
         try (InputStream inputStream = arquivo.getInputStream();
              Workbook workbook = WorkbookFactory.create(inputStream)) {
 
