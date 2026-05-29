@@ -17,9 +17,10 @@ public class AnuncioService implements IAnuncioService{
     private AnuncioRepository anuncioRepository;
 
     @Override
-    public void salvarAnuncios(List<Anuncio> anuncios) {
-        anuncioRepository.saveAll(anuncios);
+    public List<Anuncio> salvarAnuncios(List<Anuncio> anuncios) {
+        return anuncioRepository.saveAll(anuncios);
     }
+
 
     @Override
     public Anuncio buscarPorNumeroAnuncio(String numeroAnuncio) {
@@ -27,13 +28,19 @@ public class AnuncioService implements IAnuncioService{
                 .orElseThrow(() -> new NaoEncontradoException("Anúncio não encontrado."));
     }
 
+    @Autowired
+    public List<Anuncio> buscarPorNumerosAnuncio(Collection<String> numerosAnuncio) {
+        if (numerosAnuncio == null || numerosAnuncio.isEmpty()) {
+            return List.of();
+        }
+
+        return anuncioRepository.findByNumeroAnuncioIn(numerosAnuncio);
+    }
+
     @Override
     public List<AnuncioProjection> buscarAnuncios(){
         return  anuncioRepository.findAllProjectedBy();
     }
 
-    @Override
-    public List<Anuncio> buscarPorNumerosAnuncio(Collection<String> numerosAnuncio) {
-        return anuncioRepository.findByNumeroAnuncioIn(numerosAnuncio);
-    }
+
 }

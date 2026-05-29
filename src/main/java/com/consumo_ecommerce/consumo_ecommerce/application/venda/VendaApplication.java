@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -53,12 +54,32 @@ public class VendaApplication implements IVendaApplication{
                 .map(VendaRequest::numeroAnuncio)
                 .filter(numero -> !Utils.valorNulo(numero))
                 .collect(Collectors.toSet());
+        //Busca no banco os anúncios que já existem
         List<Anuncio> anuncios = anuncioService.buscarPorNumerosAnuncio(numerosAnuncio);
+        //Monta o mapa com os anuncios existentes
         Map<String, Anuncio> anunciosPorNumero = anuncios.stream()
                 .collect(Collectors.toMap(
                         Anuncio::getNumeroAnuncio,
                         anuncio -> anuncio
                 ));
+
+        //Descobre quais anúncios ainda não existem
+        Set<String> numerosAnuncioNaoEncontrados = numerosAnuncio.stream()
+                .filter(numeroAnuncio -> !anunciosPorNumero.containsKey(numeroAnuncio))
+                .collect(Collectors.toSet());
+
+        //Cria os anúncios faltantes
+        List<Anuncio> anunciosCriados = numerosAnuncioNaoEncontrados.stream()
+                .map(this::criarAnuncioAutomatico)
+                .toList();
+
+        //Salva os anúncios criados
+        if (!anunciosCriados.isEmpty()) {
+            List<Anuncio> anunciosSalvos = anuncioService.salvarAnuncios(anunciosCriados);
+            anunciosSalvos.forEach(anuncio ->
+                    anunciosPorNumero.put(anuncio.getNumeroAnuncio(), anuncio)
+            );
+        }
 
 
         List<Venda> vendas = vendasRequest.stream()
@@ -79,6 +100,22 @@ public class VendaApplication implements IVendaApplication{
     @Override
     public List<VendaResponse> buscarVendas(LocalDateTime dataInicio, LocalDateTime dataFim) {
         return vendaService.buscarVendas(dataInicio, dataFim).stream().map(VendaResponse::new).toList();
+    }
+
+    private Anuncio criarAnuncioAutomatico(String numeroAnuncio) {
+        Anuncio anuncio = new Anuncio();
+
+        anuncio.setNumeroAnuncio(numeroAnuncio);
+
+        // Dados temporários/default, porque a venda só possui o numeroAnuncio
+        anuncio.setSku("SKU-NAO-INFORMADO-" + numeroAnuncio);
+        anuncio.setCanalVenda("Não informado");
+        anuncio.setTituloAnuncio("Anúncio criado automaticamente");
+        anuncio.setVariacao("Não informado");
+        anuncio.setPrecoUnitarioVenda(BigDecimal.ZERO);
+        anuncio.setTipoAnuncio("Não informado");
+
+        return anuncio;
     }
 
 }

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public interface IAnuncioService {
-    void salvarAnuncios(List<Anuncio> anuncios);
+    List<Anuncio> salvarAnuncios(List<Anuncio> anuncios);
     Anuncio buscarPorNumeroAnuncio(String numeroAnuncio);
     List<AnuncioProjection> buscarAnuncios();
     List<Anuncio> buscarPorNumerosAnuncio(Collection<String> numerosAnuncio);

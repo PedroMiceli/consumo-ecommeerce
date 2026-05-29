@@ -55,4 +55,6 @@ public class Anuncio extends BaseEntity {
         this.precoUnitarioVenda = precoUnitarioVenda;
         this.tipoAnuncio = tipoAnuncio;
     }
+
+
 }
