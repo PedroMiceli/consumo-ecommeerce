@@ -12,7 +12,8 @@ import java.util.UUID;
 
 @Repository
 public interface AnuncioRepository extends JpaRepository<Anuncio, UUID> {
-    List<AnuncioProjection> findAllByProjection();
+
+    List<AnuncioProjection> findAllProjectedBy();
     Optional<Anuncio> findByNumeroAnuncio(String numeroAnuncio);
     List<Anuncio> findByNumeroAnuncioIn(Collection<String> numerosAnuncio);
 }

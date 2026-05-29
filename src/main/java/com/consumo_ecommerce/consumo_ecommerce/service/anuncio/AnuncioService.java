@@ -29,7 +29,7 @@ public class AnuncioService implements IAnuncioService{
 
     @Override
     public List<AnuncioProjection> buscarAnuncios(){
-        return  anuncioRepository.findAllByProjection();
+        return  anuncioRepository.findAllProjectedBy();
     }
 
     @Override

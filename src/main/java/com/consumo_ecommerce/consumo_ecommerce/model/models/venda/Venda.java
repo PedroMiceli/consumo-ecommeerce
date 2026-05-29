@@ -79,7 +79,7 @@ public class Venda extends BaseEntity {
     private String pedidoCompra;
 
     @Column(name = "venda_por_publicidade")
-    private boolean VendaPorPublicidade;
+    private boolean vendaPorPublicidade;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "anuncio_id", nullable = false)
@@ -111,7 +111,7 @@ public class Venda extends BaseEntity {
         this.total = total;
         this.mesFaturamentoTarifas = mesFaturamentoTarifas;
         this.pedidoCompra = pedidoCompra;
-        VendaPorPublicidade = vendaPorPublicidade;
+        this.vendaPorPublicidade = vendaPorPublicidade;
         this.anuncio = anuncio;
     }
 }
