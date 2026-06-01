@@ -26,6 +26,7 @@ import java.util.Locale;
 
 @Component
 public class XlsxMapper {
+    private static final int PRIMEIRA_LINHA_DADOS = 6;
 
     public List<VendaRequest> converterParaVendaRequest(MultipartFile arquivo) {
         try (InputStream inputStream = arquivo.getInputStream();
@@ -35,7 +36,7 @@ public class XlsxMapper {
 
             List<VendaRequest> vendas = new ArrayList<>();
 
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            for (int i = PRIMEIRA_LINHA_DADOS; i <= sheet.getLastRowNum(); i++) {
                 Row linha = sheet.getRow(i);
 
                 if (linha == null) {
