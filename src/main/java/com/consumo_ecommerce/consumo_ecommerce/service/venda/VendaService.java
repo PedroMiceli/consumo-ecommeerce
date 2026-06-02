@@ -1,8 +1,5 @@
 package com.consumo_ecommerce.consumo_ecommerce.service.venda;
 
-import com.consumo_ecommerce.consumo_ecommerce.application.dtos.venda.VendaRequest;
-import com.consumo_ecommerce.consumo_ecommerce.application.mapper.XlsxMapper;
-import com.consumo_ecommerce.consumo_ecommerce.exceptions.CampoObrigatorioException;
 import com.consumo_ecommerce.consumo_ecommerce.model.models.venda.Venda;
 import com.consumo_ecommerce.consumo_ecommerce.model.models.venda.VendaImportacaoErro;
 import com.consumo_ecommerce.consumo_ecommerce.model.repositories.VendaImportacaoErroRepository;
@@ -11,10 +8,10 @@ import com.consumo_ecommerce.consumo_ecommerce.model.repositories.projections.Ve
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class VendaService implements  IVendaService {
@@ -41,5 +38,11 @@ public class VendaService implements  IVendaService {
     @Override
     public void salvarVendaImportacaoErro(List<VendaImportacaoErro> vendasImportacaoErros) {
         vendaImportacaoErroRepository.saveAll(vendasImportacaoErros);
+    }
+
+    @Override
+    public Set<String> buscarNumerosVendaExistentes(Set<String> numerosVenda){
+        if (numerosVenda == null || numerosVenda.isEmpty()) {return Set.of();}
+        return vendaRepository.buscarNumerosVendaExistentes(numerosVenda);
     }
 }

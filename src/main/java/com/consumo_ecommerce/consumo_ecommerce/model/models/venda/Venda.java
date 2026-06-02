@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 public class Venda extends BaseEntity {
 
-    @Column(name = "numero_venda")
+    @Column(name = "numero_venda",nullable = false, unique = true)
     private String numeroVenda;
 
     @Column(name = "data_venda")

@@ -17,10 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,11 +48,13 @@ public class VendaApplication implements IVendaApplication{
             throw new CampoObrigatorioException("Vendas");
         }
 
+
         //Busca todos os numeros de numeroAnuncio e traz do banco cada Anuncio e salva em um mapa (Evitar N+1)
         Set<String> numerosAnuncio = vendasRequest.stream()
                 .map(VendaRequest::numeroAnuncio)
                 .filter(numero -> !Utils.valorNulo(numero))
                 .collect(Collectors.toSet());
+
         //Busca no banco os anúncios que já existem
         List<Anuncio> anuncios = anuncioService.buscarPorNumerosAnuncio(numerosAnuncio);
         //Monta o mapa com os anuncios existentes
@@ -83,14 +82,42 @@ public class VendaApplication implements IVendaApplication{
             );
         }
 
+        // Busca todos os números de venda informados na importação
+        Set<String> numerosVenda = vendasRequest.stream()
+                .map(VendaRequest::numeroVenda)
+                .filter(numero -> !Utils.valorNulo(numero))
+                .collect(Collectors.toSet());
+
+        // Busca no banco as vendas que já existem
+        Set<String> numerosVendaExistentes = vendaService.buscarNumerosVendaExistentes(numerosVenda);
+        // Evita duplicidade dentro da própria importação atual
+        Set<String> numerosVendaProcessadosNaImportacao = new HashSet<>();
+
 
         List<Venda> vendasValidas = new ArrayList<>();
         List<VendaImportacaoErro> vendasComErro = new ArrayList<>();
 
         for (VendaRequest request : vendasRequest) {
+            if (request.numeroVenda() == null) {
+                continue;
+            }
+
+            String numeroVenda = request.numeroVenda();
+
+            if (!Utils.valorNulo(numeroVenda)) {
+                // Venda já existe no banco, então ignora
+                if (numerosVendaExistentes.contains(numeroVenda)) {
+                    continue;
+                }
+                // Venda repetida dentro do próprio arquivo/importação, então ignora
+                if (!numerosVendaProcessadosNaImportacao.add(numeroVenda)) {
+                    continue;
+                }
+            }
+
             Anuncio anuncio = anunciosPorNumero.get(request.numeroAnuncio());
 
-            if (anuncio == null) {
+            if (!Utils.valorNulo(request.numeroVenda()) && (anuncio == null || anuncio.getNumeroAnuncio().isEmpty())){
                 VendaImportacaoErro erro = VendaImportacaoErro.converter(request, "Venda importada sem número de anúncio informado.");
                 vendasComErro.add(erro);
                 continue;
@@ -100,8 +127,13 @@ public class VendaApplication implements IVendaApplication{
             vendasValidas.add(venda);
         }
 
-        vendaService.salvarVendas(vendasValidas);
-        vendaService.salvarVendaImportacaoErro(vendasComErro);
+        if (!vendasValidas.isEmpty()) {
+            vendaService.salvarVendas(vendasValidas);
+        }
+
+        if (!vendasComErro.isEmpty()) {
+            vendaService.salvarVendaImportacaoErro(vendasComErro);
+        }
     }
 
     @Override
