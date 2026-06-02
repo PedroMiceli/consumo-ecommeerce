@@ -4,6 +4,7 @@ import com.consumo_ecommerce.consumo_ecommerce.application.dtos.venda.VendaReque
 import com.consumo_ecommerce.consumo_ecommerce.application.dtos.venda.VendaResponse;
 import com.consumo_ecommerce.consumo_ecommerce.application.venda.IVendaApplication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,7 +19,7 @@ public class VendaController {
     @Autowired
     private IVendaApplication vendaApplication;
 
-    @PostMapping("/importar-xlsx")
+    @PostMapping(value = "/importar-xlsx",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> importarVendasXlsx(@RequestParam("arquivo") MultipartFile arquivo) {
         vendaApplication.importarVendasXlsx(arquivo);
         return ResponseEntity.ok().build();

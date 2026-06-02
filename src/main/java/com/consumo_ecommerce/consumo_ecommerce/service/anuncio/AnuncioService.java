@@ -28,7 +28,7 @@ public class AnuncioService implements IAnuncioService{
                 .orElseThrow(() -> new NaoEncontradoException("Anúncio não encontrado."));
     }
 
-    @Autowired
+    @Override
     public List<Anuncio> buscarPorNumerosAnuncio(Collection<String> numerosAnuncio) {
         if (numerosAnuncio == null || numerosAnuncio.isEmpty()) {
             return List.of();

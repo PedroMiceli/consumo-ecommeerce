@@ -4,6 +4,8 @@ import com.consumo_ecommerce.consumo_ecommerce.application.dtos.venda.VendaReque
 import com.consumo_ecommerce.consumo_ecommerce.application.mapper.XlsxMapper;
 import com.consumo_ecommerce.consumo_ecommerce.exceptions.CampoObrigatorioException;
 import com.consumo_ecommerce.consumo_ecommerce.model.models.venda.Venda;
+import com.consumo_ecommerce.consumo_ecommerce.model.models.venda.VendaImportacaoErro;
+import com.consumo_ecommerce.consumo_ecommerce.model.repositories.VendaImportacaoErroRepository;
 import com.consumo_ecommerce.consumo_ecommerce.model.repositories.VendaRepository;
 import com.consumo_ecommerce.consumo_ecommerce.model.repositories.projections.VendaProjection;
 import jakarta.transaction.Transactional;
@@ -20,6 +22,9 @@ public class VendaService implements  IVendaService {
     @Autowired
     private VendaRepository vendaRepository;
 
+    @Autowired
+    private VendaImportacaoErroRepository vendaImportacaoErroRepository;
+
 
 
     @Override
@@ -31,5 +36,10 @@ public class VendaService implements  IVendaService {
     @Override
     public List<VendaProjection> buscarVendas(LocalDateTime dataInicio, LocalDateTime dataFim){
         return vendaRepository.findByDataVendaGreaterThanEqualAndDataVendaLessThan(dataInicio,dataFim);
+    }
+
+    @Override
+    public void salvarVendaImportacaoErro(List<VendaImportacaoErro> vendasImportacaoErros) {
+        vendaImportacaoErroRepository.saveAll(vendasImportacaoErros);
     }
 }

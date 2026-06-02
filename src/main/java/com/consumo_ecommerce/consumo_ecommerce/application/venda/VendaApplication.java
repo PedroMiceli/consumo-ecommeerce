@@ -7,6 +7,7 @@ import com.consumo_ecommerce.consumo_ecommerce.exceptions.CampoObrigatorioExcept
 import com.consumo_ecommerce.consumo_ecommerce.exceptions.NaoEncontradoException;
 import com.consumo_ecommerce.consumo_ecommerce.model.models.anuncio.Anuncio;
 import com.consumo_ecommerce.consumo_ecommerce.model.models.venda.Venda;
+import com.consumo_ecommerce.consumo_ecommerce.model.models.venda.VendaImportacaoErro;
 import com.consumo_ecommerce.consumo_ecommerce.service.anuncio.IAnuncioService;
 import com.consumo_ecommerce.consumo_ecommerce.service.venda.IVendaService;
 import com.consumo_ecommerce.consumo_ecommerce.utils.Utils;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,19 +84,24 @@ public class VendaApplication implements IVendaApplication{
         }
 
 
-        List<Venda> vendas = vendasRequest.stream()
-                .map(request -> {
-                    //Verifica se o anuncio existe para o numeroAnuncio
-                    Anuncio anuncio = anunciosPorNumero.get(request.numeroAnuncio());
-                    if (anuncio == null) {
-                        throw new NaoEncontradoException("Anúncio não encontrado para o número: " + request.numeroAnuncio());
-                    }
-                    return VendaRequest.converter(request, anuncio);
-                })
-                .toList();
+        List<Venda> vendasValidas = new ArrayList<>();
+        List<VendaImportacaoErro> vendasComErro = new ArrayList<>();
 
+        for (VendaRequest request : vendasRequest) {
+            Anuncio anuncio = anunciosPorNumero.get(request.numeroAnuncio());
 
-        vendaService.salvarVendas(vendas);
+            if (anuncio == null) {
+                VendaImportacaoErro erro = VendaImportacaoErro.converter(request, "Venda importada sem número de anúncio informado.");
+                vendasComErro.add(erro);
+                continue;
+            }
+
+            Venda venda = VendaRequest.converter(request, anuncio);
+            vendasValidas.add(venda);
+        }
+
+        vendaService.salvarVendas(vendasValidas);
+        vendaService.salvarVendaImportacaoErro(vendasComErro);
     }
 
     @Override
