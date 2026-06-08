@@ -17,6 +17,7 @@ class VendaServices extends BaseApiServices {
 
         return await this.get<VendaResponse[]>(`/buscar-vendas?${params.toString()}`);
     }
+        
 
     // async salvar(request: NotebookRequest): Promise<NotebookResponse> {
     //         return await this.post<NotebookResponse>("", request);

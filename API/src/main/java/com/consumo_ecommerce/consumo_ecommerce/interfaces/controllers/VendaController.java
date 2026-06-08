@@ -25,10 +25,18 @@ public class VendaController {
         return ResponseEntity.ok().build();
     }
 
+
+
     @PostMapping("/salvar-vendas")
     public ResponseEntity<Void> importarVendas(@RequestBody List<VendaRequest> vendas){
         vendaApplication.salvarVendas(vendas);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/buscar-vendas-totais")
+    public ResponseEntity<List<VendaResponse>> buscarVendasTotais(@RequestParam("dataInicio") LocalDateTime dataInicio, @RequestParam("dataFim") LocalDateTime dataFim){
+        List<VendaResponse> vendas = vendaApplication.buscarVendas(dataInicio,dataFim);
+        return ResponseEntity.ok(vendas);
     }
 
     @GetMapping("/buscar-vendas")

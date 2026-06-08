@@ -37,17 +37,11 @@ export abstract class BaseApiServices {
         return queryString ? `?${queryString}` : "";
     }
 
-    private async request<T>(endpoint: string, init: RequestInit, options: RequestOptions = { autenticado: true }): Promise<T> {
+    private async request<T>(endpoint: string,init: RequestInit,options: RequestOptions = { autenticado: false }
+    ): Promise<T> {
         const response = await fetch(this.obterUrl(endpoint), {
             ...init,
-
-            /**
-             * Com cookie HttpOnly, isso é o mais importante.
-             *
-             * - include: envia cookies para o backend
-             * - omit: não envia cookies
-             */
-            credentials: options.autenticado === false ? "omit" : "include",
+            credentials: options.autenticado ? "include" : "omit",
             headers: {
                 ...options.headers,
                 ...init.headers
@@ -64,7 +58,7 @@ export abstract class BaseApiServices {
             `${endpoint}${queryString}`,
             {
                 method: "GET",
-                headers: {"Content-Type": "application/json"}
+                // headers: {"Content-Type": "application/json"}
             },
             options
         );
@@ -75,7 +69,7 @@ export abstract class BaseApiServices {
             endpoint,
             {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                // headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(body)
             },
             options
@@ -98,7 +92,7 @@ export abstract class BaseApiServices {
             endpoint,
             {
                 method: "PUT",
-                headers: {"Content-Type": "application/json"},
+                // headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(body)
             },
             options
@@ -122,7 +116,7 @@ export abstract class BaseApiServices {
             `${endpoint}/${id}`,
             {
                 method: "DELETE",
-                headers: {"Content-Type": "application/json"}
+                // headers: {"Content-Type": "application/json"}
             },
             options
         );

@@ -8,11 +8,14 @@ import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
+import { ToastProvider } from './context/ToastContext.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <PrimeReactProvider>
-      <App />
-    </PrimeReactProvider>
+    <ToastProvider>
+      <PrimeReactProvider>
+        <App />
+      </PrimeReactProvider>
+    </ToastProvider>
   </StrictMode>,
 )

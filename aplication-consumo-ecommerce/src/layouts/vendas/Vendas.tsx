@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import type VendaResponse from "../services/venda/dto/VendaResponse";
-import { vendaServices } from "../services/venda/VendaServices";
-import { useToast } from "../context/ToastContext";
-import { DataUtils } from "../utils/DataUtils";
+import { useToast } from "../../context/ToastContext";
+import { DataUtils } from "../../utils/DataUtils";
 import type { Nullable } from "primereact/ts-helpers";
+import type VendaResponse from "../../services/venda/dto/VendaResponse";
+import { vendaServices } from "../../services/venda/VendaServices";
 import { Calendar } from "primereact/calendar";
 import { Button } from "primereact/button";
 
-export const Home = () => {
+export const Vendas = () => {
     const toast = useToast();
     const [loading, setLoading] = useState(true);
 
@@ -89,4 +89,4 @@ export const Home = () => {
         </div>
 
     );
-};
+}
