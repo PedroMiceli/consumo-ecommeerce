@@ -1,13 +1,40 @@
 services:
+  postgres:
+    image: postgres:16
+    container_name: ecommerce-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ecommerce-postgres-data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ecommerce"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   backend:
     build:
       context: ./API
       dockerfile: Dockerfile
     container_name: ecommerce-backend
+    restart: always
     ports:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecommerce
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres
+      	condition: service_healthy
     networks:
       - ecommerce-network
 
@@ -16,12 +43,16 @@ services:
       context: ./aplication-consumo-ecommerce
       dockerfile: Dockerfile
     container_name: ecommerce-frontend
+    restart: always
     ports:
       - "3000:80"
     depends_on:
       - backend
     networks:
       - ecommerce-network
+
+volumes:
+  ecommerce-postgres-data:
 
 networks:
   ecommerce-network:
