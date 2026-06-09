@@ -1,3 +1,11 @@
-docker build \
-  --build-arg VITE_API_URL=http://localhost:8080/api \
-  -t minha-aplicacao-react .
+
+
+docker compose up --build
+
+docker compose down --remove-orphans
+
+
+Parar aplicacao
+docker stop ecommerce-frontend
+se nao parar:
+docker rm -f ecommerce-frontend
