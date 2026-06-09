@@ -4,7 +4,6 @@ import {Button} from 'primereact/button';
 import {Ripple} from 'primereact/ripple';
 import {Icon} from '../Icon.tsx';
 import {useLocation, useNavigate} from "react-router-dom";
-import { Divider } from 'primereact/divider';
 
 
 export const Navbar = () => {

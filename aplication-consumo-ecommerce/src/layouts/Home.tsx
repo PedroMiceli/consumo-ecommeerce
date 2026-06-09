@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type VendaResponse from "../services/venda/dto/VendaResponse";
 import { vendaServices } from "../services/venda/VendaServices";
 import { useToast } from "../context/ToastContext";
 import { DataUtils } from "../utils/DataUtils";
