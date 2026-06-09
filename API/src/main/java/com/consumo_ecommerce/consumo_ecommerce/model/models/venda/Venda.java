@@ -85,10 +85,13 @@ public class Venda extends BaseEntity {
     @JoinColumn(name = "anuncio_id", nullable = false)
     private Anuncio anuncio;
 
+    @Column(name = "nf_em_anexo")
+    private String nfEmAnexo;
+
     public Venda() {
     }
 
-    public Venda(UUID id, String numeroVenda, LocalDateTime dataVenda, String deposito, String estado, String descricaoStatus, Boolean pacoteDiversosProdutos, Boolean pertenceKit, Integer unidades, BigDecimal receitaProdutos, BigDecimal receitaAcrescimoPreco, BigDecimal taxaParcelamentoAcrescimo, BigDecimal tarifaVendaImpostos, BigDecimal receitaEnvio, BigDecimal tarifasEnvio, BigDecimal custoEnvioMedidasPeso, BigDecimal custoDiferencasMedidasPeso, BigDecimal descontosBonus, BigDecimal cancelamentosReembolsos, BigDecimal total, String mesFaturamentoTarifas, String pedidoCompra, boolean vendaPorPublicidade, Anuncio anuncio) {
+    public Venda(UUID id, String numeroVenda, LocalDateTime dataVenda, String deposito, String estado, String descricaoStatus, Boolean pacoteDiversosProdutos, Boolean pertenceKit, Integer unidades, BigDecimal receitaProdutos, BigDecimal receitaAcrescimoPreco, BigDecimal taxaParcelamentoAcrescimo, BigDecimal tarifaVendaImpostos, BigDecimal receitaEnvio, BigDecimal tarifasEnvio, BigDecimal custoEnvioMedidasPeso, BigDecimal custoDiferencasMedidasPeso, BigDecimal descontosBonus, BigDecimal cancelamentosReembolsos, BigDecimal total, String mesFaturamentoTarifas, String pedidoCompra, boolean vendaPorPublicidade, Anuncio anuncio, String nfEmAnexo) {
         this.setId(id);
         this.numeroVenda = numeroVenda;
         this.dataVenda = dataVenda;
@@ -113,5 +116,6 @@ public class Venda extends BaseEntity {
         this.pedidoCompra = pedidoCompra;
         this.vendaPorPublicidade = vendaPorPublicidade;
         this.anuncio = anuncio;
+        this.nfEmAnexo = nfEmAnexo;
     }
 }

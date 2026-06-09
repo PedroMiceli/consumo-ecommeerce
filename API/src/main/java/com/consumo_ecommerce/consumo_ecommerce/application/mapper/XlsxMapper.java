@@ -76,7 +76,8 @@ public class XlsxMapper {
                         getString(linha.getCell(25)),              // numeroAnuncio
                         getString(linha.getCell(26)),              // numeroAnuncio
                         getBigDecimal(linha.getCell(27)),              // numeroAnuncio
-                        getString(linha.getCell(28))            // numeroAnuncio
+                        getString(linha.getCell(28)),            // numeroAnuncio
+                        getString(linha.getCell(34))             // nf-e em anexo
                 );
 
                 vendas.add(request);

@@ -1,5 +1,6 @@
 package com.consumo_ecommerce.consumo_ecommerce.application.venda;
 
+import com.consumo_ecommerce.consumo_ecommerce.application.dtos.ResumoDashBoard;
 import com.consumo_ecommerce.consumo_ecommerce.application.dtos.venda.VendaResponse;
 import com.consumo_ecommerce.consumo_ecommerce.application.dtos.venda.VendaRequest;
 import com.consumo_ecommerce.consumo_ecommerce.application.mapper.XlsxMapper;
@@ -8,6 +9,7 @@ import com.consumo_ecommerce.consumo_ecommerce.exceptions.NaoEncontradoException
 import com.consumo_ecommerce.consumo_ecommerce.model.models.anuncio.Anuncio;
 import com.consumo_ecommerce.consumo_ecommerce.model.models.venda.Venda;
 import com.consumo_ecommerce.consumo_ecommerce.model.models.venda.VendaImportacaoErro;
+import com.consumo_ecommerce.consumo_ecommerce.model.repositories.projections.VendaProjection;
 import com.consumo_ecommerce.consumo_ecommerce.service.anuncio.IAnuncioService;
 import com.consumo_ecommerce.consumo_ecommerce.service.venda.IVendaService;
 import com.consumo_ecommerce.consumo_ecommerce.utils.Utils;
@@ -172,6 +174,16 @@ public class VendaApplication implements IVendaApplication{
     @Override
     public List<VendaResponse> buscarVendas(LocalDateTime dataInicio, LocalDateTime dataFim) {
         return vendaService.buscarVendas(dataInicio, dataFim).stream().map(VendaResponse::new).toList();
+    }
+
+    @Override
+    public ResumoDashBoard buscarResumoVendas(LocalDateTime dataInicio, LocalDateTime dataFim) {
+        try {
+            List<VendaProjection> vendas = vendaService.buscarVendas(dataInicio, dataFim);
+            return ResumoDashBoard.converter(vendas);
+        }catch (Exception ex){
+            throw new RuntimeException("Erro ao buscar resumo das vendas", ex);
+        }
     }
 
     private Anuncio criarAnuncioAutomatico(String numeroAnuncio) {

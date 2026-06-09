@@ -37,6 +37,9 @@ public class Anuncio extends BaseEntity {
     @Column(name = "preco_unitario_venda", precision = 15, scale = 2)
     private BigDecimal precoUnitarioVenda;
 
+    @Column(name = "custo_produto", precision = 15, scale = 2)
+    private BigDecimal custoProduto;
+
     @Column(name = "tipo_anuncio")
     private String tipoAnuncio;
 

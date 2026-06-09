@@ -22,5 +22,4 @@ export default interface VendaResponse {
     mesFaturamentoTarifas: string;
     pedidoCompra: string;
     vendaPorPublicidade: boolean;
-    
 }

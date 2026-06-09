@@ -1,37 +1,79 @@
 package com.consumo_ecommerce.consumo_ecommerce.application.dtos;
 
-import com.consumo_ecommerce.consumo_ecommerce.application.dtos.anuncio.AnuncioResponse;
 import com.consumo_ecommerce.consumo_ecommerce.model.repositories.projections.VendaProjection;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 public record ResumoDashBoard(
-        int totalDeVendas,
+        int totalDeVendasRealizadas,
+        int totalDeVendasBemSucedidas,
         BigDecimal valorFaturado,
         BigDecimal valorLucrado,
-        BigDecimal ROI,
-        BigDecimal valorDeclarado
+        BigDecimal valorDeclarado,
+        BigDecimal valorDevolvidoComReembolsoAoComprador,
+        float porcentagemDeVendasComReembolso
 ) {
 
-    public ResumoDashBoard(List<VendaProjection> vendas) {
-        this();
-    }
+    public static ResumoDashBoard converter(List<VendaProjection> vendas) {
+        int totalDeVendas = vendas.size();
+        int totalDeVendasBemSucedidas = 0;
 
-    private BigDecimal calcularFaturamento(List<VendaProjection> vendas) {
         BigDecimal valorFaturado = BigDecimal.ZERO;
-        BigDecimal valorEmConta = BigDecimal.ZERO;
+        BigDecimal valorLucrado = BigDecimal.ZERO;
         BigDecimal valorDeclarado = BigDecimal.ZERO;
+        BigDecimal valorDevolvidoComReembolsoAoComprador = BigDecimal.ZERO;
 
         for (VendaProjection venda : vendas) {
-            valorFaturado = valorFaturado.add(venda.getReceitaProdutos());
+            String estado = venda.getEstado();
+
+            boolean vendaBemSucedida =
+                    "Entregue".equals(estado)
+                            || "Venda entregue".equals(estado)
+                            || "Mediação finalizada. Te demos o dinheiro.".equals(estado);
+
+            if (vendaBemSucedida) {
+                totalDeVendasBemSucedidas++;
+
+                valorFaturado = valorFaturado.add(valorOuZero(venda.getReceitaProdutos()));
+                valorLucrado = valorLucrado.add(valorOuZero(venda.getTotal()));
+
+                if ("Autorizada".equals(venda.getNfEmAnexo())) {
+                    valorDeclarado = valorDeclarado.add(valorOuZero(venda.getReceitaEnvio()));
+                }
+            }
+
+            if ("Devolução finalizada com reembolso para o comprador".equals(estado)) {
+                valorDevolvidoComReembolsoAoComprador =
+                        valorDevolvidoComReembolsoAoComprador.add(valorOuZero(venda.getTotal()));
+            }
         }
-        return valorFaturado;
+
+
+
+        return new ResumoDashBoard(
+                totalDeVendas,
+                totalDeVendasBemSucedidas,
+                valorFaturado,
+                valorLucrado,
+                valorDeclarado,
+                valorDevolvidoComReembolsoAoComprador,
+                calcularProporcaoErros(totalDeVendas, totalDeVendasBemSucedidas)
+        );
     }
 
-    private BigDecimal calcularLucro(List<VendaProjection> vendas){}
+    private static BigDecimal valorOuZero(BigDecimal valor) {
+        return valor != null ? valor : BigDecimal.ZERO;
+    }
 
-    private BigDecimal calcularROI(List<VendaProjection> vendas){}
-
-    private BigDecimal calcularValorDeclarado(List<VendaProjection> vendas){}
+    private static float calcularProporcaoErros(Integer totalDeVendas, Integer totalDeVendasBemSucedidas) {
+        if (totalDeVendas == null || totalDeVendasBemSucedidas == null)
+            return 0f;
+        if (totalDeVendas <= 0 || totalDeVendasBemSucedidas < 0)
+            return 0f;
+        float proporcao = ((totalDeVendas - totalDeVendasBemSucedidas) * 100f) / totalDeVendas;
+        if (Float.isNaN(proporcao) || Float.isInfinite(proporcao))
+            return 0f;
+        return proporcao;
+    }
 }

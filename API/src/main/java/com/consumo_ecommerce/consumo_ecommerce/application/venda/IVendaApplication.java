@@ -1,5 +1,6 @@
 package com.consumo_ecommerce.consumo_ecommerce.application.venda;
 
+import com.consumo_ecommerce.consumo_ecommerce.application.dtos.ResumoDashBoard;
 import com.consumo_ecommerce.consumo_ecommerce.application.dtos.venda.VendaResponse;
 import com.consumo_ecommerce.consumo_ecommerce.application.dtos.venda.VendaRequest;
 import org.springframework.stereotype.Service;
@@ -12,5 +13,6 @@ import java.util.List;
 public interface IVendaApplication {
     void salvarVendas(List<VendaRequest> vendasRequest);
     List<VendaResponse> buscarVendas(LocalDateTime dataInicio, LocalDateTime dataFim);
+    ResumoDashBoard buscarResumoVendas(LocalDateTime dataInicio, LocalDateTime dataFim);
     void importarVendasXlsx(MultipartFile arquivo);
 }

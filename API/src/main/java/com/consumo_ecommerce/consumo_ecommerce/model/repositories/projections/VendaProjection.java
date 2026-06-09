@@ -52,4 +52,6 @@ public interface VendaProjection {
     Boolean getVendaPorPublicidade();
 
     AnuncioProjection getAnuncio();
+
+    String getNfEmAnexo();
 }

@@ -6,6 +6,8 @@ import { DataUtils } from "../utils/DataUtils";
 import type { Nullable } from "primereact/ts-helpers";
 import { Calendar } from "primereact/calendar";
 import { Button } from "primereact/button";
+import type ResumoVendasResponse from "../services/venda/dto/ResumoVendasResponse";
+import { Card } from "primereact/card";
 
 export const Home = () => {
     const toast = useToast();
@@ -13,11 +15,9 @@ export const Home = () => {
 
     const hoje = DataUtils.obterHoje();
     const inicioMesAtual = DataUtils.obterInicioMesAtual();
+    const [periodo, setPeriodo] = useState<Date[] | null>([inicioMesAtual,hoje]);
 
-    const [dataInicio, setDataInicio] = useState<Nullable<Date>>(inicioMesAtual);
-    const [dataFim, setDataFim] = useState<Nullable<Date>>(hoje);
-
-    const[vendas, setVendas] = useState<VendaResponse[]>([]);
+    const[vendas, setVendas] = useState<ResumoVendasResponse | null>(null);
 
     const obterVendas = (inicio: Nullable<Date>, fim: Nullable<Date>) => {
         if (!inicio || !fim) {
@@ -30,63 +30,167 @@ export const Home = () => {
         const dataInicioFormatada = DataUtils.formatarParaLocalDateTime(inicio);
         const dataFimFormatada = DataUtils.formatarParaLocalDateTime(fim, true);
 
-        vendaServices.obterTodasPorData(dataInicioFormatada, dataFimFormatada)
+        vendaServices.obterResumoVendasPorData(dataInicioFormatada, dataFimFormatada)
             .then((response) => {
-                console.log(response);
                 setVendas(response);
             })
             .catch(e => toast.error({ detail: e.message }))
             .finally(() => setLoading(false));
     };
 
-    useEffect(() => {
-        console.log(vendas);
-    }, [vendas]);
-
     useEffect(() => {obterVendas(inicioMesAtual, hoje);}, []);
+
+    const formatarMoeda = (valor?: number) => {
+        return new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+        }).format(valor ?? 0);
+    };
+
+    const formatarPorcentagem = (valor?: number) => {
+        if (valor === undefined || valor === null || Number.isNaN(valor)) {
+            return "0,0";
+        }
+
+        return valor.toLocaleString("pt-BR", {
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 1,
+        }
+    );
+};
 
 
     return (
-        <div className="card">
-           
-
-            <div className="grid align-items-end">
+        <>
+        <Card className="mb-4">
+            <div className="grid justify-content-center align-items-end">
                 <div className="col-12 md:col-4">
-                    <label className="block mb-2">Data início</label>
                     <Calendar
-                        value={dataInicio}
-                        onChange={(e) => setDataInicio(e.value)}
+                        value={periodo}
+                        onChange={(e) => setPeriodo(e.value as Date[])}
+                        selectionMode="range"
+                        readOnlyInput
+                        hideOnRangeSelection
                         dateFormat="dd/mm/yy"
                         showIcon
                         className="w-full"
+                        placeholder="Selecione a data início e fim"
                     />
                 </div>
 
-                <div className="col-12 md:col-4">
-                    <label className="block mb-2">Data fim</label>
-                    <Calendar
-                        value={dataFim}
-                        onChange={(e) => setDataFim(e.value)}
-                        dateFormat="dd/mm/yy"
-                        showIcon
-                        className="w-full"
-                    />
-                </div>
-
-                <div className="col-12 md:col-4">
+                <div className="col-12 md:col-2">
                     <Button
                         label="Buscar"
                         icon="pi pi-search"
-                        onClick={() => obterVendas(dataInicio, dataFim)}
+                        onClick={() => {
+                            const dataInicio = periodo?.[0];
+                            const dataFim = periodo?.[1];
+
+                            obterVendas(dataInicio, dataFim);
+                        }}
                         loading={loading}
+                        className="w-full"
+                        disabled={!periodo?.[0] || !periodo?.[1]}
                     />
                 </div>
             </div>
+        </Card>
 
-            <div className="mt-4">
-                <p>Total de vendas encontradas: {vendas.length}</p>
+        <Card className="mb-4">
+            <div className="grid">
+                <div className="col-12 md:col-6 lg:col-2">
+                    <div className="surface-card border-1 surface-border border-round p-3 h-full">
+                        <span className="text-color-secondary text-sm">
+                            Vendas encontradas
+                        </span>
+
+                        <h3 className="m-0 mt-1 text-green-500">
+                            {vendas?.totalDeVendasRealizadas ?? 0}
+                        </h3>
+                    </div>
+                </div>
+                <div className="col-12 md:col-6 lg:col-2">
+                    <div className="surface-card border-1 surface-border border-round p-3 h-full">
+                        <span className="text-color-secondary text-sm">
+                            Vendas bem-sucedidas
+                        </span>
+
+                        <h3 className="m-0 mt-2 text-green-500">
+                            {vendas?.totalDeVendasBemSucedidas ?? 0}
+                        </h3>
+                    </div>
+                </div>
+                <div className="col-12 md:col-6 lg:col-2">
+                    <div className="surface-card border-1 surface-border border-round p-3 h-full">
+                        <span className="text-700 text-sm">
+                            Vendas declaradas
+                        </span>
+
+                        <h3 className="m-0 mt-2 text-blue-500">
+                            {formatarMoeda(vendas?.valorDeclarado)}
+                        </h3>
+                    </div>
+                </div>
+                <div className="col-12 md:col-6 lg:col-2">
+                    <div className="surface-card border-1 surface-border border-round p-3 h-full">
+                        <span className="text-700 text-sm">
+                            Recebido em conta
+                        </span>
+
+                        <h3 className="m-0 mt-2 text-green-500">
+                            {formatarMoeda(vendas?.valorLucrado)}
+                        </h3>
+                    </div>
+                </div>
+                <div className="col-12 md:col-6 lg:col-2">
+                    <div className="surface-card border-1 surface-border border-round p-3 h-full">
+                        <span className="text-700 text-sm">
+                            Total faturado
+                        </span>
+
+                        <h3 className="m-0 mt-2 text-orange-500">
+                            {formatarMoeda(vendas?.valorFaturado)}
+                        </h3>
+                    </div>
+                </div>
+                <div className="col-12 md:col-6 lg:col-2">
+                    <div className="surface-card border-1 surface-border border-round p-3 h-full">
+                        <span className="text-700 text-sm">
+                            Reservado
+                        </span>
+
+                        <h3 className="m-0 mt-2 text-orange-500">
+                            Reservado
+                        </h3>
+                    </div>
+                </div>
             </div>
-        </div>
+            <div className="grid">
+                <div className="col-12 md:col-6 lg:col-2">
+                    <div className="surface-card  border-1 surface-border border-round p-3 h-full">
+                        <span className="text-700 text-sm">
+                            Valor reembolsado
+                        </span>
 
+                        <h3 className="m-0 mt-2 text-red-500">
+                            {formatarMoeda(vendas?.valorDevolvidoComReembolsoAoComprador)}
+                        </h3>
+                    </div>
+                </div>
+
+                <div className="col-12 md:col-6 lg:col-2">
+                    <div className="surface-card border-1 surface-border border-round p-3 h-full">
+                        <span className="text-700 text-sm">
+                            Vendas com reembolso
+                        </span>
+
+                        <h3 className="m-0 mt-2 text-red-500">
+                            {formatarPorcentagem(vendas?.porcentagemDeVendasComReembolso)}%
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </Card>
+        </>
     );
 };

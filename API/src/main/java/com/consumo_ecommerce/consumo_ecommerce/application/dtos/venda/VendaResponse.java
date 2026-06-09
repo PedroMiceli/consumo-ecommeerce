@@ -31,7 +31,8 @@ public record VendaResponse(
         String mesFaturamentoTarifas,
         String pedidoCompra,
         Boolean vendaPorPublicidade,
-        AnuncioResponse anuncio
+        AnuncioResponse anuncio,
+        String nfEmAnexo
 ) {
 
     public VendaResponse(VendaProjection venda) {
@@ -59,7 +60,8 @@ public record VendaResponse(
                 venda.getMesFaturamentoTarifas(),
                 venda.getPedidoCompra(),
                 venda.getVendaPorPublicidade(),
-                venda.getAnuncio() != null ? new AnuncioResponse(venda.getAnuncio()) : null
+                venda.getAnuncio() != null ? new AnuncioResponse(venda.getAnuncio()) : null,
+                venda.getNfEmAnexo()
         );
     }
 }

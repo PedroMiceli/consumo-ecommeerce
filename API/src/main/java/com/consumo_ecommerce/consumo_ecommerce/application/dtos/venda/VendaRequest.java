@@ -39,7 +39,8 @@ public record VendaRequest(
         String tituloAnuncio,
         String variacao,
         BigDecimal precoUnitarioVenda,
-        String tipoAnuncio
+        String tipoAnuncio,
+        String nfEmAnexo
 
 ) {
     public static Venda converter(VendaRequest request, Anuncio anuncio) {
@@ -69,7 +70,8 @@ public record VendaRequest(
                 request.mesFaturamentoTarifas,
                 request.pedidoCompra,
                 Boolean.TRUE.equals(request.vendaPorPublicidade),
-                anuncio
+                anuncio,
+                request.nfEmAnexo
         );
     }
 

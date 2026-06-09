@@ -1,5 +1,6 @@
 package com.consumo_ecommerce.consumo_ecommerce.interfaces.controllers;
 
+import com.consumo_ecommerce.consumo_ecommerce.application.dtos.ResumoDashBoard;
 import com.consumo_ecommerce.consumo_ecommerce.application.dtos.venda.VendaRequest;
 import com.consumo_ecommerce.consumo_ecommerce.application.dtos.venda.VendaResponse;
 import com.consumo_ecommerce.consumo_ecommerce.application.venda.IVendaApplication;
@@ -33,9 +34,9 @@ public class VendaController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/buscar-vendas-totais")
-    public ResponseEntity<List<VendaResponse>> buscarVendasTotais(@RequestParam("dataInicio") LocalDateTime dataInicio, @RequestParam("dataFim") LocalDateTime dataFim){
-        List<VendaResponse> vendas = vendaApplication.buscarVendas(dataInicio,dataFim);
+    @GetMapping("/buscar-resumo-vendas")
+    public ResponseEntity<ResumoDashBoard> buscarResumoVendas(@RequestParam("dataInicio") LocalDateTime dataInicio, @RequestParam("dataFim") LocalDateTime dataFim){
+        ResumoDashBoard vendas = vendaApplication.buscarResumoVendas(dataInicio,dataFim);
         return ResponseEntity.ok(vendas);
     }
 
