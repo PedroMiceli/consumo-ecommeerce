@@ -113,6 +113,7 @@ export const Vendas = () => {
                 //stripedRows
                 showGridlines
                 size="small"
+                rowClassName={() => 'text-sm'}
                 emptyMessage="Nenhuma venda encontrada."
                 className="p-datatable-sm"
             >
