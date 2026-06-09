@@ -178,7 +178,7 @@ export abstract class BaseApiServices {
 }
 
 
-function dateReviver(key: unknown, value: unknown): unknown {
+function dateReviver(_: unknown, value: unknown): unknown {
     // Regex simples para detectar strings no formato YYYY-MM-DD (sem tempo)
     const shortDateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
     // Regex para strings ISO 8601 completas (com tempo e Z)
