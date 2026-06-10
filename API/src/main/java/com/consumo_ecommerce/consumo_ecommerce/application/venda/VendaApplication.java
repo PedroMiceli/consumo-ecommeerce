@@ -7,10 +7,13 @@ import com.consumo_ecommerce.consumo_ecommerce.application.mapper.XlsxMapper;
 import com.consumo_ecommerce.consumo_ecommerce.exceptions.CampoObrigatorioException;
 import com.consumo_ecommerce.consumo_ecommerce.exceptions.NaoEncontradoException;
 import com.consumo_ecommerce.consumo_ecommerce.model.models.anuncio.Anuncio;
+import com.consumo_ecommerce.consumo_ecommerce.model.models.produto.Produto;
 import com.consumo_ecommerce.consumo_ecommerce.model.models.venda.Venda;
 import com.consumo_ecommerce.consumo_ecommerce.model.models.venda.VendaImportacaoErro;
+import com.consumo_ecommerce.consumo_ecommerce.model.repositories.projections.ProdutoProjection;
 import com.consumo_ecommerce.consumo_ecommerce.model.repositories.projections.VendaProjection;
 import com.consumo_ecommerce.consumo_ecommerce.service.anuncio.IAnuncioService;
+import com.consumo_ecommerce.consumo_ecommerce.service.produto.IProdutoService;
 import com.consumo_ecommerce.consumo_ecommerce.service.venda.IVendaService;
 import com.consumo_ecommerce.consumo_ecommerce.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,9 @@ public class VendaApplication implements IVendaApplication{
     private IAnuncioService anuncioService;
 
     @Autowired
+    private IProdutoService produtoService;
+
+    @Autowired
     private XlsxMapper xlsxMapper;
 
     //Le o arquivo xlsx e retorna uma lista de VendaRequest, chamando a funçao de salvar
@@ -50,6 +56,10 @@ public class VendaApplication implements IVendaApplication{
             throw new CampoObrigatorioException("Vendas");
         }
 
+        Set<String> skusProdutos = vendasRequest.stream().map(VendaRequest::sku).collect(Collectors.toSet());
+
+
+
         // Busca todos os números de anúncio informados na importação
         Set<String> numerosAnuncio = vendasRequest.stream()
                 .map(VendaRequest::numeroAnuncio)
@@ -61,16 +71,23 @@ public class VendaApplication implements IVendaApplication{
          * Como os dados do anúncio estão dentro da venda, guardamos uma venda de referência
          * para cada numeroAnuncio.
          */
-        Map<String, VendaRequest> vendaRequestPorNumeroAnuncio = vendasRequest.stream()
-                .filter(request -> !Utils.valorNulo(request.numeroAnuncio()))
-                .collect(Collectors.toMap(
-                        VendaRequest::numeroAnuncio,
-                        request -> request,
-                        (requestExistente, requestDuplicada) -> requestExistente
-                ));
+        Map<String, VendaRequest> vendaRequestPorNumeroAnuncio = new HashMap<>();
+        Map<String, VendaRequest> vendaRequestPorSku = new HashMap<>();
+
+        for (VendaRequest request : vendasRequest) {
+            if (!Utils.valorNulo(request.numeroAnuncio())) {
+                vendaRequestPorNumeroAnuncio.putIfAbsent(request.numeroAnuncio(), request);
+            }
+
+            if (!Utils.valorNulo(request.sku())) {
+                vendaRequestPorSku.putIfAbsent(request.sku(), request);
+            }
+        }
 
         // Busca no banco os anúncios que já existem
         List<Anuncio> anuncios = anuncioService.buscarPorNumerosAnuncio(numerosAnuncio);
+        // Busca no banco os produtos que já existem
+        List<Produto> produtos = produtoService.buscarPorSKUs(skusProdutos);
 
         // Monta o mapa com os anúncios existentes
         Map<String, Anuncio> anunciosPorNumero = anuncios.stream()
@@ -79,16 +96,35 @@ public class VendaApplication implements IVendaApplication{
                         anuncio -> anuncio
                 ));
 
+        // Monta o mapa com os produtos existentes
+        Map<String, Produto> produtosPorSku = produtos.stream()
+                .collect(Collectors.toMap(
+                        Produto::getSku,
+                        produto -> produto
+                ));
+
         // Descobre quais anúncios ainda não existem
         Set<String> numerosAnuncioNaoEncontrados = numerosAnuncio.stream()
                 .filter(numeroAnuncio -> !anunciosPorNumero.containsKey(numeroAnuncio))
                 .collect(Collectors.toSet());
 
-        // Cria os anúncios faltantes usando os dados disponíveis no VendaRequest
+        // Descobre quais produtos ainda não existem
+        Set<String> skusProdutosNaoEncontrados = skusProdutos.stream()
+                .filter(sku -> !produtosPorSku.containsKey(sku))
+                .collect(Collectors.toSet());
+
+        // Cria os anúncios faltantes
         List<Anuncio> anunciosCriados = numerosAnuncioNaoEncontrados.stream()
                 .map(vendaRequestPorNumeroAnuncio::get)
                 .filter(Objects::nonNull)
                 .map(this::criarAnuncioAutomaticoNovo)
+                .toList();
+
+        // Cria os produtos faltantes
+        List<Produto> produtosCriados = skusProdutosNaoEncontrados.stream()
+                .map(vendaRequestPorSku::get)
+                .filter(Objects::nonNull)
+                .map(this::criarProdutoAutomaticoNovo)
                 .toList();
 
         // Salva os anúncios criados e adiciona no mapa
@@ -96,6 +132,15 @@ public class VendaApplication implements IVendaApplication{
             List<Anuncio> anunciosSalvos = anuncioService.salvarAnuncios(anunciosCriados);
 
             anunciosSalvos.forEach(anuncio ->
+                    anunciosPorNumero.put(anuncio.getNumeroAnuncio(), anuncio)
+            );
+        }
+
+        // Salva os produtos criados e adiciona no mapa
+        if (!produtosCriados.isEmpty()) {
+            List<Anuncio> produtossalvos = anuncioService.salvarAnuncios(anunciosCriados);
+
+            produtossalvos.forEach(anuncio ->
                     anunciosPorNumero.put(anuncio.getNumeroAnuncio(), anuncio)
             );
         }
@@ -214,6 +259,17 @@ public class VendaApplication implements IVendaApplication{
         anuncio.setTipoAnuncio(request.tipoAnuncio());
 
         return anuncio;
+    }
+
+    private Produto criarProdutoAutomaticoNovo(VendaRequest request) {
+        Produto produto = new Produto();
+
+        produto.setSku(request.sku());
+        produto.setNome(request.tituloAnuncio());
+        // Como você comentou que será preenchido manualmente depois
+        produto.setCusto(BigDecimal.ZERO);
+
+        return produto;
     }
 
 }

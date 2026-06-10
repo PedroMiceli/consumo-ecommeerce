@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { Home } from "../layouts/Home";
 import { Vendas } from "../layouts/vendas/Vendas";
+import { Anuncios } from "../layouts/anuncios/Anuncios";
 
 
 export const Router = () => {
@@ -8,7 +9,7 @@ export const Router = () => {
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/vendas" element={<Vendas />} />
-            {/* <Route path="/anuncios" element={<Anuncios />} /> */}
+            <Route path="/anuncios" element={<Anuncios />} />
         </Routes>
     );
 }
